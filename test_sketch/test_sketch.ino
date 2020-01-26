@@ -1,6 +1,6 @@
-void setup() {
-  // put your setup code here, to run once:
-
+void setup()
+{
+  pinMode A0 = INPUT;
 }
 
 void loop() {
