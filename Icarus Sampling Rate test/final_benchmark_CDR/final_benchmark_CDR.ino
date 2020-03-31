@@ -21,7 +21,6 @@ Version 2 writes the array to an SD card.
 
 
 /*******************Global filename variable****************************/
-File myFile;
 char fileName[21] = "lol1test.csv";
 
 /*******************Global interrupt variable***************************/
@@ -29,17 +28,16 @@ boolean usingInterrupt = false;
 void useInterrupt(boolean);
 
 /*******************Global dataPacket array*************************/
-int dataPacket[13] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
 int counter = 0;
 int c,d,p;
 int uvTimer = millis();
-int difference;
 
 /*******************Global enviroPacket array***********************/
 int enviroPacket[4] = {0,0,0,0};
 
 /*******************Global NMEA sentence string variable***************/
 String nmeaSentence = "$GPGGA,xxxxxx,xxxx.xx,x,xxxx.xx,x,x,xx,x.x,xxxxxx.x,x,xx.x,x,,*xx";
+
 char newLine = 13;
 int indexOfValue = 0;
 int gpsTimer = millis();
@@ -142,7 +140,7 @@ void printArray(int dataPacket[13])
 */
 void printToSD(int dataPacket[13])
 {
-  myFile = SD.open(fileName, FILE_WRITE);
+  File myFile = SD.open(fileName, FILE_WRITE);
   for (int i = 0; i < 13; i++)
   {
     myFile.print(dataPacket[i]);
@@ -153,12 +151,15 @@ void printToSD(int dataPacket[13])
   }
   myFile.println();
   myFile.close();
+  myFile.delete();
   //return;
 }
 
 /********************This function fills the dataPacket array*****************/
-void fillDataPacket ()
+int[13] fillDataPacket ()
 {
+    int dataPacket[13] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
+
     dataPacket[0] = analogRead(A0);
     dataPacket[1] = analogRead(A1);
     dataPacket[2] = analogRead(A2);
@@ -176,7 +177,7 @@ void fillDataPacket ()
       }
       Wire.endTransmission();
     }
-      //return;
+    return dataPacket;
 }
 
 /*******************This function fills the enviroPacket**********************/
@@ -201,9 +202,10 @@ void getNMEA ()
 }
 
 /*******************This function opens a file, writes the data entry, and closes the file*/
-void writeData()
+void writeData(int dataPacket[13])
 {
   myFile = SD.open(fileName, FILE_WRITE);
+  //TODO: RTC GOES HERE!
   for (int i = 0; i < 13; i++)
   {  
     myFile.print(dataPacket[i]);
@@ -218,6 +220,7 @@ void writeData()
   }
   myFile.print("\n");
   myFile.close();
+  myFile.delete();
   //return;
 }
 
@@ -225,8 +228,9 @@ void loop()
 {
   Serial.println(millis());
   while(counter < 10000)
-  {
-    difference = millis() - uvTimer;
+  {  
+    int dataPacket[13];
+    int difference = millis() - uvTimer;
     if (difference >= 167)
     {
       uvTimer = millis();
@@ -244,9 +248,11 @@ void loop()
       getNMEA();
       fillEnviroPacket();
     }
-    writeData();
+    writeData(dataPacket);
     counter++;
   }
   Serial.println(millis());
-  while(1);
+  while(1){
+      delay(1028);
+  };
 }
