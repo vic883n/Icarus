@@ -195,6 +195,7 @@ void getNMEA ()
 /******************This function creates a file name*************************/
 void createFileName()
 {
+  Serial.println("inside create file name");
   DateTime time =rtc.now();
   String temp = " ";
   String currentTime = " ";
@@ -228,6 +229,8 @@ void createFileName()
 
   file.println(F("UV-A,UV-B,UV-C,UV-T,Mag X,Mag Y,Mag Z,Temp Out,Temp In, Pressure, Humidity, NMEA Sentence"));
   file.close();
+
+  Serial.println(charFileName);
 }
 
 void getMagValues()
@@ -250,18 +253,18 @@ void writeData()
   
   for (int i = 0; i < 7; i++)
   {
-    value = "dickbutt";
-    file.print(F(value));
-    file.print(F(','));
+    value = String (dataPacket[i], DEC);
+    file.print(value);
+    file.print(',');
   }
   
-  /*for (int i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
   {
-    file.print(F(String (enviroPacket[i], DEC)));
-    file.print(F(","));
+    file.print(String (enviroPacket[i], DEC));
+    file.print(',');
   }
-*/
-  //file.println(F(nmeaSentence));
+
+  file.println(nmeaSentence);
 
   file.flush();
   file.close();
